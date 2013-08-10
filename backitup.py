@@ -20,6 +20,11 @@ stamp = '_expired' + time.strftime('%Y%m%d%H%M%S')
 logpath = r'D:\backups\log.txt'
 # mode to use for the log file, either 'w' for write or 'a' for append
 logmode = 'w'
+# replace separators in original path? If True, colons will be removed.
+# True enables backups like c:/a/a/a and c:/a/b/a -> c-a-a-a and c-a-b-a
+replaceSep = True
+# string to replace separators in the original path
+sepReplace = '-'
 ## PARAMETERS END ##
 
 # list for logging errors
@@ -80,7 +85,11 @@ if __name__ == '__main__':
     try:
         for b in originals:
             logitem = [time.strftime('%Y%m%d%H%M%S'), b]
-            dest = os.path.join(backupto, addStamp(os.path.basename(b), stamp))
+            dest= addStamp(os.path.basename(b), stamp)
+            if replaceSep:
+                dest = os.path.join(os.path.dirname(b), dest)
+                dest = dest.replace("\\", sepReplace).replace("/", sepReplace).replace(":", "")
+            dest = os.path.join(backupto, dest)
             try:
                 makeBackup(b, dest) # the crititcal function call
                 logitem.append(str(dest))
